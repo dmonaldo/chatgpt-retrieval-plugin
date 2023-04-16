@@ -1,6 +1,8 @@
 # FinGPT Plugin
 
-The FinGPT authentication frontend is [here](https://github.com/dmonaldo/fingpt).
+The FinGPT Plugin lets you search and ask questions about your bank accounts and financial transactions. The FinGPT authentication frontend can be found [here](https://github.com/dmonaldo/fingpt).
+
+This plugin is a fork of the [ChatGPT Retrieval Plugin](https://github.com/openai/chatgpt-retrieval-plugin). All readme content below is from the original plugin.
 
 Find an example video of a Retrieval Plugin that has access to the UN Annual Reports from 2018 to 2022 [here](https://cdn.openai.com/chat-plugins/retrieval-gh-repo-readme/Retrieval-Final.mp4).
 
@@ -24,34 +26,39 @@ This README provides detailed information on how to set up, develop, and deploy 
 
 ## Table of Contents
 
-- [Quickstart](#quickstart)
-- [About](#about)
-  - [Plugins](#plugins)
-  - [Retrieval Plugin](#retrieval-plugin)
-  - [Memory Feature](#memory-feature)
-  - [Security](#security)
-  - [API Endpoints](#api-endpoints)
-- [Development](#development)
-  - [Setup](#setup)
-    - [General Environment Variables](#general-environment-variables)
-  - [Choosing a Vector Database](#choosing-a-vector-database)
-    - [Pinecone](#pinecone)
-    - [Weaviate](#weaviate)
-    - [Zilliz](#zilliz)
-    - [Milvus](#milvus)
-    - [Qdrant](#qdrant)
-    - [Redis](#redis)
-  - [Running the API Locally](#running-the-api-locally)
-  - [Testing a Localhost Plugin in ChatGPT](#testing-a-localhost-plugin-in-chatgpt)
-  - [Personalization](#personalization)
-  - [Authentication Methods](#authentication-methods)
-- [Deployment](#deployment)
-- [Installing a Developer Plugin](#installing-a-developer-plugin)
-- [Webhooks](#webhooks)
-- [Scripts](#scripts)
-- [Limitations](#limitations)
-- [Contributors](#contributors)
-- [Future Directions](#future-directions)
+- [FinGPT Plugin](#fingpt-plugin)
+  - [Introduction](#introduction)
+  - [Table of Contents](#table-of-contents)
+  - [Quickstart](#quickstart)
+    - [Testing in ChatGPT](#testing-in-chatgpt)
+  - [About](#about)
+    - [Plugins](#plugins)
+    - [Retrieval Plugin](#retrieval-plugin)
+    - [Memory Feature](#memory-feature)
+    - [Security](#security)
+    - [API Endpoints](#api-endpoints)
+  - [Development](#development)
+    - [Setup](#setup)
+      - [General Environment Variables](#general-environment-variables)
+    - [Choosing a Vector Database](#choosing-a-vector-database)
+      - [Pinecone](#pinecone)
+      - [Weaviate](#weaviate)
+      - [Zilliz](#zilliz)
+      - [Milvus](#milvus)
+      - [Qdrant](#qdrant)
+      - [Redis](#redis)
+      - [LlamaIndex](#llamaindex)
+    - [Running the API locally](#running-the-api-locally)
+    - [Testing a Localhost Plugin in ChatGPT](#testing-a-localhost-plugin-in-chatgpt)
+    - [Personalization](#personalization)
+    - [Authentication Methods](#authentication-methods)
+  - [Deployment](#deployment)
+  - [Installing a Developer Plugin](#installing-a-developer-plugin)
+  - [Webhooks](#webhooks)
+  - [Scripts](#scripts)
+  - [Limitations](#limitations)
+  - [Future Directions](#future-directions)
+  - [Contributors](#contributors)
 
 ## Quickstart
 
