@@ -5,7 +5,7 @@ from typing import Optional
 
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Body, UploadFile
-
+from dotenv import load_dotenv
 import plaid
 from plaid.api import plaid_api
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
@@ -41,6 +41,8 @@ from starlette.responses import FileResponse
 from models.models import DocumentMetadata, Source
 from fastapi.middleware.cors import CORSMiddleware
 
+
+load_dotenv()
 
 plaid_configuration = plaid.Configuration(
     host=plaid.Environment.Sandbox,
