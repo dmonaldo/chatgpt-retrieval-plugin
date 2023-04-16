@@ -60,10 +60,14 @@ class SyncItemRequest(BaseModel):
 
 class SyncItemResponse(BaseModel):
     success: bool
+    item: dict
     transactions: List
     accounts: List
+
+
 class TransactionResponse(BaseModel):
     transactions: List[Transaction]
+
 
 class AccountResponse(BaseModel):
     account: Account
