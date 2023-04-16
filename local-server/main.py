@@ -1,7 +1,7 @@
 # This is a version of the main.py file found in ../../../server/main.py for testing the plugin locally.
 # Use the command `poetry run dev` to run this.
 import os
-from typing import Optional
+from typing import List, Optional
 
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Body, UploadFile
@@ -17,6 +17,8 @@ from plaid.model.depository_filter import DepositoryFilter
 from plaid.model.depository_account_subtypes import DepositoryAccountSubtypes
 from plaid.model.depository_account_subtype import DepositoryAccountSubtype
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
+from plaid.model.transactions_sync_request import TransactionsSyncRequest
+from plaid.model.accounts_get_request import AccountsGetRequest
 
 
 from models.api import (
@@ -30,6 +32,8 @@ from models.api import (
     InitializePlaidResponse,
     ExchangePublicTokenRequest,
     ExchangePublicTokenResponse,
+    SyncItemRequest,
+    SyncItemResponse,
     TransactionResponse,
     AccountResponse
 )
@@ -38,15 +42,21 @@ from services.file import get_document_from_file
 
 from starlette.responses import FileResponse
 
-from models.models import DocumentMetadata, Source
+from models.models import Document, DocumentMetadata, Source
 from fastapi.middleware.cors import CORSMiddleware
 
+
+plaid_client_id = os.environ.get("PLAID_CLIENT_ID")
+plaid_secret = os.environ.get("PLAID_SECRET")
+
+if plaid_client_id is None or plaid_secret is None:
+    raise Exception("Plaid client id and secret must be set in environment variables")
 
 plaid_configuration = plaid.Configuration(
     host=plaid.Environment.Sandbox,
     api_key={
-        'clientId': os.environ.get("PLAID_CLIENT_ID"),
-        'secret': os.environ.get("PLAID_SECRET"),
+        'clientId': plaid_client_id,
+        'secret': plaid_secret,
     }
 )
 
@@ -174,7 +184,7 @@ async def delete(
     response_model=InitializePlaidResponse,
 )
 async def create_link_token(
-    request: InitializePlaidRequest = Body(...),
+    body: InitializePlaidRequest = Body(...),
 ):
     request = LinkTokenCreateRequest(
         products=[Products('auth'), Products('transactions')],
@@ -213,6 +223,60 @@ async def exchange_public_token(
     )
     response = plaid_client.item_public_token_exchange(exchange_token_request)
     return ExchangePublicTokenResponse(success=True, access_token=response['access_token'])
+
+
+@app.post(
+    "/sync-item",
+    response_model=SyncItemResponse,
+)
+async def sync_item(
+    body: SyncItemRequest = Body(...),
+):
+    # 1. Get transactions
+    transactions_request = TransactionsSyncRequest(
+        access_token=body.access_token,
+    )
+
+    transactions_response = plaid_client.transactions_sync(transactions_request)
+    transactions = transactions_response['added']
+
+    while (transactions_response['has_more']):
+        transactions_request = TransactionsSyncRequest(
+            access_token=body.access_token,
+            cursor=transactions_response['next_cursor']
+        )
+        transactions_response = plaid_client.transactions_sync(transactions_request)
+        transactions += transactions_response['added']
+    dict_transactions = [t.to_dict() for t in transactions]
+
+    # 2. Get accounts
+    accounts_request = AccountsGetRequest(
+        access_token=body.access_token,
+    )
+    accounts_response = plaid_client.accounts_get(accounts_request)
+    accounts = accounts_response['accounts']
+    dict_accounts = [a.to_dict() for a in accounts]
+
+    # 3. Store transactions and accounts
+    documents: List[Document] = []
+    for t in transactions:
+        documents.append(Document(text=str(t.to_dict()),
+                                  metadata=DocumentMetadata(
+                                        source=Source.plaid,
+                                        source_id=t.transaction_id,
+                                        # author=t.item_id,
+                                  )))
+    for a in accounts:
+        documents.append(Document(text=str(a.to_dict()),
+                                  metadata=DocumentMetadata(
+                                        source=Source.plaid,
+                                        source_id=a.account_id,
+                                        # author=a.item_id,
+                                  )))
+
+    ids = await datastore.upsert(documents)
+
+    return SyncItemResponse(success=True, transactions=dict_transactions, accounts=dict_accounts)
 
 
 @app.get(

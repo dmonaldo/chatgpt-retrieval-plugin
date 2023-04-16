@@ -53,6 +53,15 @@ class ExchangePublicTokenResponse(BaseModel):
     success: bool
     access_token: str
 
+
+class SyncItemRequest(BaseModel):
+    access_token: str
+
+
+class SyncItemResponse(BaseModel):
+    success: bool
+    transactions: List
+    accounts: List
 class TransactionResponse(BaseModel):
     transactions: List[Transaction]
 
