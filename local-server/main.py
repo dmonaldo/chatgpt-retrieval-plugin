@@ -5,7 +5,7 @@ from typing import List, Optional
 
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Body, UploadFile
-
+from dotenv import load_dotenv
 import plaid
 from plaid.api import plaid_api
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
@@ -45,6 +45,8 @@ from starlette.responses import FileResponse
 from models.models import Document, DocumentMetadata, Source
 from fastapi.middleware.cors import CORSMiddleware
 
+
+load_dotenv()
 
 plaid_client_id = os.environ.get("PLAID_CLIENT_ID")
 plaid_secret = os.environ.get("PLAID_SECRET")
