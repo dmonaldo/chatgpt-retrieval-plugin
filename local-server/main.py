@@ -2,7 +2,9 @@
 # Use the command `poetry run dev` to run this.
 import os
 from typing import List, Optional
+import logging
 
+import openai
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Body, UploadFile
 from dotenv import load_dotenv
@@ -48,6 +50,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
+openai.api_key = os.getenv("OPENAI_API_KEY")
 plaid_client_id = os.environ.get("PLAID_CLIENT_ID")
 plaid_secret = os.environ.get("PLAID_SECRET")
 
@@ -341,6 +344,13 @@ async def get_account():
 async def startup():
     global datastore
     datastore = await get_datastore()
+    
+    # Check if OpenAI API key is set
+    try:
+        openai.Model.list()
+    except Exception as exce:
+        logging.error("OpenAI API key not set. Please set OPENAI_API_KEY environment variable.")
+        exit(1)
 
 
 def start():
