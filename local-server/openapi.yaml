@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
-  title: Retrieval Plugin API
-  description: A retrieval API for querying and filtering documents based on natural language queries and metadata
+  title: FinGPT Plugin API
+  description: A FinGPT API for querying and filtering banking transactions based on natural language queries and metadata
   version: 1.0.0
   servers:
     - url: http://localhost:3333
