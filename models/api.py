@@ -58,5 +58,6 @@ class SyncItemRequest(BaseModel):
 
 class SyncItemResponse(BaseModel):
     success: bool
+    item: dict
     transactions: List
     accounts: List

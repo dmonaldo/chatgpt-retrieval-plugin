@@ -21,6 +21,7 @@ from plaid.model.depository_account_subtype import DepositoryAccountSubtype
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
 from plaid.model.accounts_get_request import AccountsGetRequest
+from plaid.model.item_get_request import ItemGetRequest
 
 
 from models.api import (
@@ -237,7 +238,15 @@ async def exchange_public_token(
 async def sync_item(
     body: SyncItemRequest = Body(...),
 ):
-    # 1. Get transactions
+    # 1. Get item
+    item_request = ItemGetRequest(
+        access_token=body.access_token,
+    )
+    item_response = plaid_client.item_get(item_request)
+    item = item_response['item']
+    dict_item = item.to_dict()
+
+    # 2. Get transactions
     transactions_request = TransactionsSyncRequest(
         access_token=body.access_token,
     )
@@ -254,7 +263,7 @@ async def sync_item(
         transactions += transactions_response['added']
     dict_transactions = [t.to_dict() for t in transactions]
 
-    # 2. Get accounts
+    # 3. Get accounts
     accounts_request = AccountsGetRequest(
         access_token=body.access_token,
     )
@@ -262,7 +271,7 @@ async def sync_item(
     accounts = accounts_response['accounts']
     dict_accounts = [a.to_dict() for a in accounts]
 
-    # 3. Store transactions and accounts
+    # 4. Store transactions and accounts
     documents: List[Document] = []
     for t in transactions:
         documents.append(Document(text=str(t.to_dict()),
@@ -281,7 +290,7 @@ async def sync_item(
 
     ids = await datastore.upsert(documents)
 
-    return SyncItemResponse(success=True, transactions=dict_transactions, accounts=dict_accounts)
+    return SyncItemResponse(success=True, item=dict_item, transactions=dict_transactions, accounts=dict_accounts)
 
 
 @app.on_event("startup")
