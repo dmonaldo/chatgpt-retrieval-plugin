@@ -2,6 +2,10 @@
 
 The FinGPT Plugin lets you search and ask questions about your bank accounts and financial transactions. The FinGPT authentication frontend can be found [here](https://github.com/dmonaldo/fingpt).
 
+![example 1](./example1.png)
+
+![example 2](./example2.png)
+
 This plugin is a fork of the [ChatGPT Retrieval Plugin](https://github.com/openai/chatgpt-retrieval-plugin). All readme content below is from the original plugin.
 
 Find an example video of a Retrieval Plugin that has access to the UN Annual Reports from 2018 to 2022 [here](https://cdn.openai.com/chat-plugins/retrieval-gh-repo-readme/Retrieval-Final.mp4).
