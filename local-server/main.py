@@ -2,10 +2,12 @@
 # Use the command `poetry run dev` to run this.
 import os
 from typing import List, Optional
+import logging
 
+import openai
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Body, UploadFile
-
+from dotenv import load_dotenv
 import plaid
 from plaid.api import plaid_api
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
@@ -35,8 +37,8 @@ from models.api import (
     ExchangePublicTokenResponse,
     SyncItemRequest,
     SyncItemResponse,
-    TransactionResponse,
-    AccountResponse
+    # TransactionResponse,
+    # AccountResponse
 )
 from datastore.factory import get_datastore
 from services.file import get_document_from_file
@@ -47,6 +49,9 @@ from models.models import Document, DocumentMetadata, Source
 from fastapi.middleware.cors import CORSMiddleware
 
 
+load_dotenv()
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
 plaid_client_id = os.environ.get("PLAID_CLIENT_ID")
 plaid_secret = os.environ.get("PLAID_SECRET")
 
@@ -152,7 +157,7 @@ async def query_main(request: QueryRequest = Body(...)):
         )
         return QueryResponse(results=results)
     except Exception as e:
-        print("Error:", e)
+        logging.error(e, exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Service Error")
 
 
@@ -288,66 +293,17 @@ async def sync_item(
     return SyncItemResponse(success=True, item=dict_item, transactions=dict_transactions, accounts=dict_accounts)
 
 
-@app.get(
-    "/transactions",
-    response_model=TransactionResponse,
-)
-async def get_transactions():
-    """
-    Get most recent 20 transactions.
-    TODO: Shove to LLAMAIndex for Text to SQL
-    # https://gpt-index.readthedocs.io/en/latest/guides/tutorials/sql_guide.html#text-to-sql-basic
-    """
-    # response = datastore.query(
-    #     "What are the 20 most recent transactions?"
-    # )
-    # return response, response.extra_info['sql_query']
-    return datastore.query(
-        "SELECT * FROM transactions ORDER BY date DESC LIMIT 20"
-    )
-
-
-@app.get(
-    "/all_transactions",
-    response_model=TransactionResponse,
-)
-async def get_all_transactions():
-    """
-    Get all of the transactions.
-    TODO: Shove to LLAMAIndex for Text to SQL
-    # https://gpt-index.readthedocs.io/en/latest/guides/tutorials/sql_guide.html#text-to-sql-basic
-    """
-    # response = datastore.query(
-    #     "What are all of the transactions?"
-    # )
-    # return response, response.extra_info['sql_query']
-    return datastore.query(
-        "SELECT * FROM transactions"
-    )
-
-
-@app.get(
-    "/account",
-    response_model=AccountResponse,
-)
-async def get_account():
-    """
-    Get all of the transactions.
-    TODO: Shove to LLAMAIndex for Text to SQL
-    # https://gpt-index.readthedocs.io/en/latest/guides/tutorials/sql_guide.html#text-to-sql-basic
-    """
-    # response = datastore.query(
-    #     "What are all of my account information?"
-    # )
-    # return response, response.extra_info['sql_query']
-    return datastore.query(
-        "SELECT * FROM accounts"
-    )
-
 @app.on_event("startup")
 async def startup():
     global datastore
     datastore = await get_datastore()
+    
+    # Check if OpenAI API key is set
+    try:
+        openai.Model.list()
+    except Exception as exce:
+        logging.error("OpenAI API key not set. Please set OPENAI_API_KEY environment variable.")
+        exit(1)
 
 
 def start():

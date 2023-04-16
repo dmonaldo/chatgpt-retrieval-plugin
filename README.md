@@ -1,6 +1,6 @@
-# ChatGPT Retrieval Plugin
+# FinGPT Plugin
 
-> **Join the [ChatGPT plugins waitlist here](https://openai.com/waitlist/plugins)!**
+The FinGPT authentication frontend is [here](https://github.com/dmonaldo/fingpt).
 
 Find an example video of a Retrieval Plugin that has access to the UN Annual Reports from 2018 to 2022 [here](https://cdn.openai.com/chat-plugins/retrieval-gh-repo-readme/Retrieval-Final.mp4).
 

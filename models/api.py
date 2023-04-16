@@ -3,8 +3,6 @@ from models.models import (
     DocumentMetadataFilter,
     Query,
     QueryResult,
-    Transaction,
-    Account
 )
 from pydantic import BaseModel
 from typing import List, Optional
@@ -63,11 +61,3 @@ class SyncItemResponse(BaseModel):
     item: dict
     transactions: List
     accounts: List
-
-
-class TransactionResponse(BaseModel):
-    transactions: List[Transaction]
-
-
-class AccountResponse(BaseModel):
-    account: Account
