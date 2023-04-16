@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: FinGPT Plugin API
-  description: A FinGPT API for querying and filtering banking transactions based on natural language queries and metadata
+  description: An API for querying and filtering bank account and financial transactions based on natural language queries and metadata
   version: 1.0.0
   servers:
     - url: http://localhost:3333
